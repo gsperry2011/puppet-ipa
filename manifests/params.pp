@@ -106,7 +106,7 @@ class ipa::params {
     }
     'Debian': {
       case $facts['os']['release']['major'] {
-        /(16.04)/: {
+        /(16.04)/, /(18.04)/, /(20.04)/: {
           $service_stop_epp    = 'systemctl stop <%= $service %>'
           $service_restart_epp = 'systemctl restart <%= $service %>'
 
