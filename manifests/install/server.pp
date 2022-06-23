@@ -111,8 +111,9 @@ class ipa::install::server (
   }
 
   # harden the SSL ciphers and protocols for Apache using the NSS module
-  $nss_ssl_ciphers = join($ipa::nss_ssl_ciphers, ',')
-  $nss_ssl_protocols = join($ipa::nss_ssl_protocols, ',')
+  $nss_ssl_ciphers = join($ipa::params::nss_ssl_ciphers, ',')
+  $nss_ssl_protocols = join($ipa::params::nss_ssl_protocols, ',')
+
   if $nss_ssl_ciphers != undef and !$nss_ssl_ciphers.empty() {
     file_line { 'nss_ssl_cipher':
       path   => '/etc/httpd/conf.d/nss.conf',
@@ -121,6 +122,7 @@ class ipa::install::server (
       notify => Service['httpd'],
     }
   }
+
   if $nss_ssl_protocols != undef and !$nss_ssl_protocols.empty() {
     file_line { 'nss_ssl_protocols':
       path   => '/etc/httpd/conf.d/nss.conf',

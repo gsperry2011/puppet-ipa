@@ -77,8 +77,10 @@ class ipa::params {
           # Failed to bind to server!
           # Failed to get keytab
           # child exited with 9
-          $ds_ssl_ciphers         = $ds_ssl_ciphers_tls12 + $ds_ssl_ciphers_tls13
-          $ds_ssl_min_version     = $ds_ssl_min_version_tls12
+          #$ds_ssl_ciphers         = $ds_ssl_ciphers_tls12 + $ds_ssl_ciphers_tls13
+          #$ds_ssl_min_version     = $ds_ssl_min_version_tls12
+          $ds_ssl_ciphers         = []
+          $ds_ssl_min_version     = ''
 
           # IPA on RHEL/CentOS 8 switched to mod_ssl, away from mod_nss
           # mod_ssl in RHEL/CentOS 8 uses the "system" cryto policy for its ciphers and protocols
@@ -93,12 +95,14 @@ class ipa::params {
           # you _must_ set both the TLS 1.2 and 1.3 ciphers here though, otherwise you'll get an error
           # when registering your clients:
           # Joining realm failed: HTTP POST to URL 'https://freeipa.maludy.home:443/ipa/xml' failed.  libcurl failed even to execute the HTTP transaction, explaining:  SSL certificate problem: EE certificate key too weak
-          $pki_ssl_ciphers        = $pki_ssl_ciphers_tls12 + $pki_ssl_ciphers_tls13
+          #$pki_ssl_ciphers        = $pki_ssl_ciphers_tls12 + $pki_ssl_ciphers_tls13
+          $pki_ssl_ciphers        = []
           # PKI Tomcat doesn't, yet, support tls1_3 protocol, so leave it to 1.2
           # if you try to set it to tls1_2:tls1_3 pki-tomcatd@pki-tomcat.service service will fail to start
-          $pki_ssl_protocol_range = $pki_ssl_protocol_range_tls12
+          #$pki_ssl_protocol_range = $pki_ssl_protocol_range_tls12
+          $pki_ssl_protocol_range = ''
         }
-        default: { fail("ERROR: Unsupported RHEL version: ${facts['os']['full']}") }
+        default: { fail("ERROR: Unsupported RHEL release: ${facts['os']['release']['full']}") }
       }
       $ldaputils_package_name    = 'openldap-clients'
       $ipa_client_package_name   = 'ipa-client'
@@ -139,7 +143,7 @@ class ipa::params {
           $pki_ssl_ciphers        = undef
           $pki_ssl_protocol_range = undef
         }
-        default: { fail("ERROR: Unsupported Ubuntu version: ${facts['os']['full']}") }
+        default: { fail("ERROR: Unsupported Ubuntu release: ${facts['os']['release']['full']}") }
       }
       $ldaputils_package_name    = 'ldap-utils'
       $ipa_client_package_name   = 'freeipa-client'
