@@ -266,8 +266,9 @@ class ipa (
     } else {
       $final_configure_dns_server = $configure_dns_server
     }
+
+    class {'ipa::validate_params':}
+    -> class {'ipa::install':}
   }
 
-  class {'ipa::validate_params':}
-  -> class {'ipa::install':}
 }
