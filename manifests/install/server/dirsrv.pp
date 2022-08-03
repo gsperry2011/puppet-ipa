@@ -1,8 +1,8 @@
 # Private class to manage IPA directory services
 class ipa::install::server::dirsrv (
   String $admin_password        = $ipa::admin_password,
-  Optional[Array[String]] $ds_ssl_ciphers = $ipa::ds_ssl_ciphers,
-  Optional[String] $ds_ssl_min_version    = $ipa::ds_ssl_min_version,
+  Optional[Array[String]] $ds_ssl_ciphers = $ipa::params::ds_ssl_ciphers,
+  Optional[String] $ds_ssl_min_version    = $ipa::params::ds_ssl_min_version,
   String $ds_password           = $ipa::ds_password,
   String $ipa_realm             = $ipa::final_realm,
 ) inherits ipa {

@@ -18,11 +18,6 @@ class ipa::install::server::replica (
     --unattended
     | EOC
 
-  # Set puppet fact for IPA role
-  facter::fact { 'ipa_role':
-    value => $ipa_role,
-  }
-
   contain ipa::helpers::firewalld
 
   if str2bool($facts['ipa_installed']) != true {
@@ -46,10 +41,15 @@ class ipa::install::server::replica (
       require     => Class['ipa::helpers::firewalld'],
       notify      => Ipa::Helpers::Flushcache["server_${$facts['fqdn']}"],
     }
-  }
 
-  facter::fact { 'ipa_installed':
-    value => true,
+    # Set fact for IPA installed if successful
+    -> facter::fact { 'ipa_installed':
+      value => true,
+    }
+    # Set puppet fact for IPA role
+    -> facter::fact { 'ipa_role':
+      value => $ipa_role,
+    }
   }
 
 }
