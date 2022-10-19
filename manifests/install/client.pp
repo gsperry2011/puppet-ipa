@@ -11,6 +11,7 @@ class ipa::install::client (
   String            $client_package_name  = $ipa::params::ipa_client_package_name,
   Boolean           $client_trust_dns     = $ipa::trust_dns,
   String            $domain_name          = $ipa::domain,
+  String            $realm_name           = $ipa::final_realm,
   Boolean           $ignore_group_members = $ipa::ignore_group_members,
   Boolean           $install_autofs       = $ipa::install_autofs,
   String            $ipa_role             = $ipa::ipa_role,
@@ -52,6 +53,7 @@ class ipa::install::client (
   $client_install_cmd = @("EOC"/)
     ipa-client-install \
     --domain=${domain_name} \
+    --realm=${realm_name} \
     --principal="${principal_user}" \
     --password=\$IPA_JOIN_PASSWORD \
     ${client_dns_opts} \
