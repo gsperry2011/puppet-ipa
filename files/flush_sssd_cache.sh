@@ -4,7 +4,7 @@ service_mgt() {
   action="$1"
   name="$2"
   if [[ -L '/sbin/init' ]]; then
-    systemctl "$action" "$name"
+    systemctl "$action" "$name" -l --no-pager
   else
     service "$name" "$action"
   fi
