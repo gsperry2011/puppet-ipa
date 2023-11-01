@@ -1,24 +1,15 @@
 # Validates input configs from init.pp.
 #
-# @param admin_pass
-# @param domain
-# @param ds_password
-# @param idstart
-# @param ipa_master
-# @param ipa_realm
-# @param ipa_role
-# @param join_password
-#
-class ipa::validate_params (
-  String             $admin_pass     = $ipa::admin_password,
-  String             $domain         = $ipa::domain,
-  String             $ds_password    = $ipa::ds_password,
-  Integer            $idstart        = $ipa::idstart,
-  String             $ipa_master     = $ipa::ipa_master_fqdn,
-  String             $ipa_realm      = $ipa::final_realm,
-  String             $ipa_role       = $ipa::ipa_role,
-  Sensitive[String]  $join_password  = $ipa::final_domain_join_password,
-) {
+class ipa::validate_params {
+  $admin_pass     = $ipa::admin_password
+  $domain         = $ipa::domain
+  $ds_password    = $ipa::ds_password
+  $idstart        = $ipa::idstart
+  $ipa_master     = $ipa::ipa_master_fqdn
+  $ipa_realm      = $ipa::final_realm
+  $ipa_role       = $ipa::ipa_role
+  $join_password  = $ipa::final_domain_join_password
+
   case $ipa_role {
     'client': {}
     'master': {}
@@ -31,10 +22,10 @@ class ipa::validate_params (
   }
 
   if ($domain !~ Stdlib::Fqdn) {
-    fail("ipa::domain '${ipa::domain} is not a valid FQDN. We expect a match for Stdlib::Fqdn")
+    fail("ipa::domain '${ipa::domain}' is not a valid FQDN. We expect a match for Stdlib::Fqdn")
   }
   if ($ipa_realm !~ Stdlib::Fqdn) {
-    fail("ipa::realm '${ipa_realm} is not a valid FQDN. We expect a match for Stdlib::Fqdn")
+    fail("ipa::realm '${ipa_realm}' is not a valid FQDN. We expect a match for Stdlib::Fqdn")
   }
 
   if $ipa_role == 'master' {

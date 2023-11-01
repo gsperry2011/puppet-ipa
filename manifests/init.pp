@@ -130,9 +130,6 @@
 # @param sssd_services
 #      (string) Define what services are configured with SSSD.
 #
-#
-#
-#
 #      (boolean) If true, then /etc/httpd/conf.d/ipa.conf is written to exclude kerberos support for
 #                incoming requests whose HTTP_HOST variable match the parameter 'webio_proxy_external_fqdn'.
 #                This allows the IPA Web UI to work on a proxied port, while allowing IPA client access to
@@ -151,18 +148,18 @@
 #
 class ipa (
   String               $admin_user               = 'admin',
-  String               $admin_password           = undef,
-  String               $ad_domain                = undef,
+  Optional[String]     $admin_password           = undef,
+  Optional[String]     $ad_domain                = undef,
   Array[String]        $ad_groups                = [],
   Optional[String]     $ad_ldap_search_base      = undef,
   Optional[String]     $ad_site                  = undef,
-  String               $ad_trust_admin           = undef,
-  String               $ad_trust_password        = undef,
-  String               $ad_trust_realm           = undef,
+  Optional[String]     $ad_trust_admin           = undef,
+  Optional[String]     $ad_trust_password        = undef,
+  Optional[String]     $ad_trust_realm           = undef,
   Boolean              $allow_zone_overlap       = false,
   String               $automount_location       = 'default',
   String               $automount_home_dir       = undef,
-  String               $automount_home_share     = undef,
+  Optional[String]     $automount_home_share     = undef,
   Boolean              $client_install_ldaputils = false,
   Boolean              $configure_dns_server     = false,
   Boolean              $configure_ldap_search    = false,
@@ -171,10 +168,10 @@ class ipa (
   Boolean              $configure_sshd           = true,
   Array[String]        $custom_dns_forwarders    = [],
   String               $sssd_debug_level         = '3',
-  String               $ds_password              = undef,
+  Optional[String]     $ds_password              = undef,
   Optional[Array[String]] $ds_ssl_ciphers        = $ipa::params::ds_ssl_ciphers,
   Optional[Enum['', 'TLS1.0','TLS1.1','TLS1.2', 'TLS1.3']] $ds_ssl_min_version = $ipa::params::ds_ssl_min_version,
-  String               $domain                   = undef,
+  String               $domain                   = $facts['networking']['domain'],
   String               $domain_join_password     = undef,
   String               $domain_join_principal    = undef,
   Boolean              $enable_hostname          = true,
@@ -202,7 +199,7 @@ class ipa (
   Optional[String]     $override_homedir         = undef,
   Optional[Array[String]] $pki_ssl_ciphers       = $ipa::params::pki_ssl_ciphers,
   Optional[String]     $pki_ssl_protocol_range   = $ipa::params::pki_ssl_protocol_range,
-  String               $realm                    = undef,
+  Optional[String]     $realm                    = undef,
   Boolean              $server_install_ldaputils = true,
   Array[String]        $sssd_services            = ['nss','sudo','pam','ssh','autofs'],
   Boolean              $trust_dns                = true,
@@ -211,11 +208,7 @@ class ipa (
     # Include per-OS parameters and fail on unsupported OS
     include ipa::params
 
-    if $realm != '' {
-      $final_realm = $realm
-    } else {
-      $final_realm = upcase($domain)
-    }
+    $final_realm = pick($realm, upcase($domain))
 
     $master_principals = suffix(
       prefix(
@@ -225,17 +218,8 @@ class ipa (
       "@${final_realm}"
     )
 
-    if $domain_join_principal != '' {
-      $final_domain_join_principal = $domain_join_principal
-    } else {
-      $final_domain_join_principal = 'admin'
-    }
-
-    if $domain_join_password != '' {
-      $final_domain_join_password = Sensitive($domain_join_password)
-    } else {
-      $final_domain_join_password = Sensitive($ds_password)
-    }
+    $final_domain_join_principal = pick($domain_join_principal, 'admin')
+    $final_domain_join_password  = pick(Sensitive($domain_join_password), Sensitive($ds_password))
 
     if $ipa_role == 'client' {
       $final_configure_dns_server = false

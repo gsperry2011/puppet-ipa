@@ -3,9 +3,9 @@
 # @api private
 #
 class ipa::install::client (
-  String            $ad_domain            = $ipa::ad_domain,
-  String            $ad_ldap_search_base  = $ipa::ad_ldap_search_base,
-  String            $ad_site              = $ipa::ad_site,
+  Optional[String]  $ad_domain            = $ipa::ad_domain,
+  Optional[String]  $ad_ldap_search_base  = $ipa::ad_ldap_search_base,
+  Optional[String]  $ad_site              = $ipa::ad_site,
   String            $automount_location   = $ipa::automount_location,
   String            $automount_home_dir   = $ipa::automount_home_dir,
   Boolean           $client_configure_ntp = $ipa::configure_ntp,
