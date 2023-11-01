@@ -1,4 +1,14 @@
 # Validates input configs from init.pp.
+#
+# @param admin_pass
+# @param domain
+# @param ds_password
+# @param idstart
+# @param ipa_master
+# @param ipa_realm
+# @param ipa_role
+# @param join_password
+#
 class ipa::validate_params (
   String             $admin_pass     = $ipa::admin_password,
   String             $domain         = $ipa::domain,
@@ -9,12 +19,11 @@ class ipa::validate_params (
   String             $ipa_role       = $ipa::ipa_role,
   Sensitive[String]  $join_password  = $ipa::final_domain_join_password,
 ) {
-
   case $ipa_role {
     'client': {}
     'master': {}
     'replica': {}
-    default: {fail('The parameter ipa_role must be set to client, master, or replica.')}
+    default: { fail('The parameter ipa_role must be set to client, master, or replica.') }
   }
 
   if $idstart < 10000 {
@@ -44,7 +53,7 @@ class ipa::validate_params (
   if $ipa_role != 'master' { # if replica or client
 
     # TODO: validate_legacy
-    if $ipa_master == ''{
+    if $ipa_master == '' {
       fail("When creating a ${ipa_role} the parameter named ipa_master_fqdn cannot be empty.")
     }
 

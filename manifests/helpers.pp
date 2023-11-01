@@ -1,3 +1,2 @@
 #
-class ipa::helpers {
-}
+class ipa::helpers {}

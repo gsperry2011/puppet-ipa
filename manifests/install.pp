@@ -3,22 +3,21 @@
 #              role of the client.  The first run of this may take up to 15
 #              minutes to complete on the master or replica servers, be patient.
 #
+class ipa::install {
+  $auto_home_share     = $ipa::automount_home_share
+  $auto_location       = $ipa::automount_location
+  $autofs_package      = $ipa::params::autofs_package_name
+  $configure_dns       = $ipa::final_configure_dns_server
+  $install_ad_trust    = $ipa::install_trust_ad
+  $install_autofs      = $ipa::install_autofs
+  $install_epel        = $ipa::install_epel
+  $install_ipa_server  = $ipa::install_ipa_server
+  $install_sssd        = $ipa::install_sssd
+  $install_sssd_tools  = $ipa::install_sssdtools
+  $ipa_role            = $ipa::ipa_role
+  $sssd_package_name   = $ipa::params::sssd_package_name
+  $sssd_tools_package  = $ipa::params::sssdtools_package_name
 
-class ipa::install (
-  String  $auto_home_share     = $ipa::automount_home_share,
-  String  $auto_location       = $ipa::automount_location,
-  String  $autofs_package      = $ipa::params::autofs_package_name,
-  Boolean $configure_dns       = $ipa::final_configure_dns_server,
-  Boolean $install_ad_trust    = $ipa::install_trust_ad,
-  Boolean $install_autofs      = $ipa::install_autofs,
-  Boolean $install_epel        = $ipa::install_epel,
-  Boolean $install_ipa_server  = $ipa::install_ipa_server,
-  Boolean $install_sssd        = $ipa::install_sssd,
-  Boolean $install_sssd_tools  = $ipa::install_sssdtools,
-  String  $ipa_role            = $ipa::ipa_role,
-  String  $sssd_package_name   = $ipa::params::sssd_package_name,
-  String  $sssd_tools_package  = $ipa::params::sssdtools_package_name,
-) {
   # Do we want to do this or rely on Satellite repository?
   if $install_epel and $facts['os']['family'] == 'RedHat' {
     contain epel
@@ -41,14 +40,12 @@ class ipa::install (
       'RedHat': {
         case $facts['os']['release']['major'] {
           /(7)/, /(8)/: {}
-          default: {
-            fail("ERROR: Server can only be installed on RHEL 7+, \
+        default: { fail("ERROR: Server can only be installed on RHEL 7+, \
             not RHEL version: ${facts['os']['full']}")
           }
         }
       }
-      default: {
-        fail("ERROR: Server can only be installed on RHEL 7+, \
+    default: { fail("ERROR: Server can only be installed on RHEL 7+, \
         not on operating system: ${facts['os']['family']}")
       }
     }
@@ -83,7 +80,7 @@ class ipa::install (
         'ipa-server-dns',
         'bind-dyndb-ldap',
       ]
-      package{$dns_packages:
+      package { $dns_packages:
         ensure => present,
       }
     }
@@ -111,6 +108,5 @@ class ipa::install (
   }
 
   # Define helper
-  ipa::helpers::flushcache { "server_${$facts['fqdn']}": }
-
+  ipa::helpers::flushcache { "server_${$facts['networking']['fqdn']}": }
 }

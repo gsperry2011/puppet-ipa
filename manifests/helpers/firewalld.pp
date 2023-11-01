@@ -1,6 +1,5 @@
 # Manifest to open ports for IPA server
 class ipa::helpers::firewalld {
-
   include firewalld
 
   # Open ports for DNS if enabled
@@ -42,5 +41,4 @@ class ipa::helpers::firewalld {
     service => 'freeipa-ldap',
     zone    => 'public',
   }
-
 }

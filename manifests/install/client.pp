@@ -1,3 +1,6 @@
+# Private class to install IPA client
+#
+# @api private
 #
 class ipa::install::client (
   String            $ad_domain            = $ipa::ad_domain,
@@ -25,7 +28,7 @@ class ipa::install::client (
   String            $sssd_package_name    = $ipa::params::sssd_package_name,
   Array[String]     $sssd_services        = $ipa::sssd_services,
 ) inherits ipa {
-  package{ 'ipa-client':
+  package { 'ipa-client':
     ensure => $client_ensure,
     name   => $client_package_name,
   }
@@ -61,16 +64,16 @@ class ipa::install::client (
     --unattended
     | EOC
 
-  exec { "client_install_${$facts['fqdn']}":
+  exec { "client_install_${$facts['networking']['fqdn'] }":
     command     => $client_install_cmd,
-    environment => [ "IPA_JOIN_PASSWORD=${principal_pass.unwrap}" ],
+    environment => ["IPA_JOIN_PASSWORD=${principal_pass.unwrap}"],
     path        => ['/bin', '/sbin', '/usr/sbin', '/usr/bin'],
     timeout     => 0,
     unless      => "cat /etc/ipa/default.conf | grep -i \"${domain_name}\"",
     creates     => '/etc/ipa/default.conf',
     logoutput   => 'on_failure',
     provider    => 'shell',
-    notify      => Ipa::Helpers::Flushcache["server_${$facts['fqdn']}"],
+    notify      => Ipa::Helpers::Flushcache["server_${$facts['networking']['fqdn']}"],
   }
 
   # This will customize the sssd.conf file for EMS specifics.
@@ -78,27 +81,29 @@ class ipa::install::client (
   #       create original version and then update it on the master server.
   file { '/etc/sssd/sssd.conf':
     ensure  => file,
-    content => epp('ipa/sssd.conf.epp', {
-      ad_domain            => $ad_domain,
-      ad_ldap_search_base  => $ad_ldap_search_base,
-      ad_site              => $ad_site,
-      automount_location   => $automount_location,
-      domain               => $domain_name,
-      fqdn                 => $facts['fqdn'],
-      ignore_group_members => $ignore_group_members,
-      install_autofs       => $install_autofs,
-      ipa_master_fqdn      => $ipa_master_fqdn,
-      ipa_role             => $ipa_role,
-      override_homedir     => $override_homedir,
-      sssd_debug_level     => $sssd_debug_level,
-      sssd_services        => $sssd_services,
-    }),
+    content => epp('ipa/sssd.conf.epp',
+      {
+        ad_domain            => $ad_domain,
+        ad_ldap_search_base  => $ad_ldap_search_base,
+        ad_site              => $ad_site,
+        automount_location   => $automount_location,
+        domain               => $domain_name,
+        fqdn                 => $facts['networking']['fqdn'],
+        ignore_group_members => $ignore_group_members,
+        install_autofs       => $install_autofs,
+        ipa_master_fqdn      => $ipa_master_fqdn,
+        ipa_role             => $ipa_role,
+        override_homedir     => $override_homedir,
+        sssd_debug_level     => $sssd_debug_level,
+        sssd_services        => $sssd_services,
+      }
+    ),
     mode    => '0600',
     require => [
       Package[$sssd_package_name],
-      Exec["client_install_${$facts['fqdn']}"],
+      Exec["client_install_${$facts['networking']['fqdn']}"],
     ],
-    notify  => Ipa::Helpers::Flushcache["server_${$facts['fqdn']}"],
+    notify  => Ipa::Helpers::Flushcache["server_${$facts['networking']['fqdn']}"],
   }
 
   if $automount_home_dir != undef and !$automount_home_dir.empty() {
@@ -113,7 +118,7 @@ class ipa::install::client (
       path   => '/etc/nsswitch.conf',
       line   => 'automount:  files sss',
       match  => '^automount:.*',
-      notify => Ipa::Helpers::Flushcache["server_${$facts['fqdn']}"],
+      notify => Ipa::Helpers::Flushcache["server_${$facts['networking']['fqdn']}"],
     }
   }
 
@@ -122,7 +127,7 @@ class ipa::install::client (
     path   => '/etc/nsswitch.conf',
     line   => 'sudoers:  files sss',
     match  => '^sudoers:.*',
-    notify => Ipa::Helpers::Flushcache["server_${$facts['fqdn']}"],
+    notify => Ipa::Helpers::Flushcache["server_${$facts['networking']['fqdn']}"],
   }
 
   # Required for cross-domain lookups (example, AD joined hosts) lookup.
@@ -130,13 +135,13 @@ class ipa::install::client (
     path    => '/etc/krb5.conf',
     line    => '  dns_lookup_realm = true',
     match   => '^  dns_lookup_realm =.*',
-    require => Exec["client_install_${$facts['fqdn']}"],
+    require => Exec["client_install_${$facts['networking']['fqdn']}"],
   }
 
   file_line { 'krb5.conf_dns_kdc':
     path    => '/etc/krb5.conf',
     line    => '  dns_lookup_kdc = true',
     match   => '^  dns_lookup_kdc =.*',
-    require => Exec["client_install_${$facts['fqdn']}"],
+    require => Exec["client_install_${$facts['networking']['fqdn']}"],
   }
 }
