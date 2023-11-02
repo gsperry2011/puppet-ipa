@@ -1,14 +1,14 @@
 # Install and configure trust_ad if enabled
-class ipa::install::server::trust_ad (
-  String  $ad_admin     = $ipa::ad_trust_admin,
-  String  $ad_domain    = $ipa::ad_trust_realm,
-  Array   $ad_groups    = $ipa::ad_groups,
-  String  $admin_pass   = $ipa::admin_password,
-  String  $admin_user   = $ipa::admin_user,
-  String  $ad_password  = $ipa::ad_trust_password,
-  String  $ad_realm     = $ipa::ad_trust_realm,
-  String  $ipa_role     = $ipa::ipa_role,
-) {
+#
+class ipa::install::server::trust_ad {
+  $ad_admin     = $ipa::ad_trust_admin
+  $ad_domain    = $ipa::ad_trust_realm
+  $ad_groups    = $ipa::ad_groups
+  $admin_pass   = $ipa::admin_password
+  $admin_user   = $ipa::admin_user
+  $ad_password  = $ipa::ad_trust_password
+  $ad_realm     = $ipa::ad_trust_realm
+  $ipa_role     = $ipa::ipa_role
 
   package { 'ipa-server-trust-ad':
     ensure => 'present',
@@ -42,11 +42,11 @@ class ipa::install::server::trust_ad (
       command   => $adtrust_install_cmd,
       path      => ['bin', '/sbin', '/usr/sbin'],
       logoutput => 'on_failure',
-      notify    => Ipa::Helpers::Flushcache["server_${$facts['fqdn']}"],
+      notify    => Ipa::Helpers::Flushcache["server_${$facts['networking']['fqdn']}"],
     }
     ~> exec { 'trust_ad_trust_add':
       command     => $trust_add_cmd,
-      environment => [ "AD_PASSWORD=${ad_password}" ],
+      environment => ["AD_PASSWORD=${ad_password}"],
       path        => ['/bin', '/usr/bin'],
       logoutput   => 'on_failure',
       refreshonly => true,
@@ -74,13 +74,15 @@ class ipa::install::server::trust_ad (
     mode    => '0750',
     owner   => 'root',
     group   => 'root',
-    content => epp('ipa/config_ipa_ldap.sh.epp', {
-      ad_admin   => $ad_admin,
-      ad_domain  => $ad_domain,
-      ad_groups  => $ad_groups,
-      ad_realm   => $ad_realm,
-      admin_pass => $admin_pass,
-    }),
+    content => epp('ipa/config_ipa_ldap.sh.epp',
+      {
+        ad_admin   => $ad_admin,
+        ad_domain  => $ad_domain,
+        ad_groups  => $ad_groups,
+        ad_realm   => $ad_realm,
+        admin_pass => $admin_pass,
+      }
+    ),
   }
 
   file { '/root/02_id_override.sh':
@@ -88,8 +90,10 @@ class ipa::install::server::trust_ad (
     mode    => '0750',
     owner   => 'root',
     group   => 'root',
-    content => epp('ipa/id_override.sh.epp', {
-      ad_domain => $ad_domain,
-    }),
+    content => epp('ipa/id_override.sh.epp',
+      {
+        ad_domain => $ad_domain,
+      }
+    ),
   }
 }

@@ -7,7 +7,6 @@
 # by failing early rather than later.
 #
 class ipa::params {
-
   $autofs_service = 'autofs'
   $sssd_service   = 'sssd'
 
@@ -35,22 +34,11 @@ class ipa::params {
     '+ecdhe_rsa_aes_256_gcm_sha_384',
     '+ecdhe_rsa_chacha20_poly1305_sha_256',
   ]
-  $nss_ssl_protocols_tls12 =  ['TLSv1.2']
+  $nss_ssl_protocols_tls12 = ['TLSv1.2']
 
   case $facts['os']['family'] {
     'RedHat': {
       case $facts['os']['release']['major'] {
-        /(6)/: {
-          $service_stop_epp    = 'service <%= $service %> stop'
-          $service_restart_epp = 'service <%= $service %> restart'
-
-          $ds_ssl_ciphers         = undef
-          $ds_ssl_min_version     = undef
-          $nss_ssl_ciphers        = undef
-          $nss_ssl_protocols      = undef
-          $pki_ssl_ciphers        = undef
-          $pki_ssl_protocol_range = undef
-        }
         /(7)/: {
           $service_stop_epp    = 'systemctl stop <%= $service %>'
           $service_restart_epp = 'systemctl restart <%= $service %>'
@@ -62,7 +50,7 @@ class ipa::params {
           $pki_ssl_ciphers        = $pki_ssl_ciphers_tls12
           $pki_ssl_protocol_range = $pki_ssl_protocol_range_tls12
         }
-        /(8)/: {
+        /(8)/,/(9)/: {
           $service_stop_epp    = 'systemctl stop <%= $service %>'
           $service_restart_epp = 'systemctl restart <%= $service %>'
 
@@ -169,6 +157,7 @@ class ipa::params {
   $uid_gid_min = 65536
   # allows for the fact to be empty/undef
   $uid_gid_max = max(pick(dig($facts, 'ipa_login_defs', 'UID_MAX'), $uid_gid_min),
-                      pick(dig($facts, 'ipa_login_defs', 'GID_MAX'), $uid_gid_min))
+  pick(dig($facts, 'ipa_login_defs', 'GID_MAX'), $uid_gid_min))
+
   $idstart = (fqdn_rand('10737') + max($uid_gid_max, $uid_gid_min))
 }

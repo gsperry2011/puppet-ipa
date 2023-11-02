@@ -1,31 +1,29 @@
 #
-class ipa::install::server::master (
-  String             $ad_domain            = $ipa::ad_domain,
-  String             $ad_ldap_search_base  = $ipa::ad_ldap_search_base,
-  String             $ad_site              = $ipa::ad_site,
-  String   $admin_pass           = $ipa::admin_password,
-  String   $admin_user           = $ipa::admin_user,
-  String             $automount_location   = $ipa::automount_location,
-
-  String   $cmd_opts_dns         = $ipa::install::server::server_install_cmd_opts_setup_dns,
-  String   $cmd_opts_dnssec      = $ipa::install::server::server_install_cmd_opts_dnssec_validation,
-  String   $cmd_opts_forwarders  = $ipa::install::server::server_install_cmd_opts_forwarders,
-  String   $cmd_opts_hostname    = $ipa::install::server::server_install_cmd_opts_hostname,
-  String   $cmd_opts_idstart     = $ipa::install::server::server_install_cmd_opts_idstart,
-  String   $cmd_opts_ntp         = $ipa::install::server::server_install_cmd_opts_no_ntp,
-  String   $cmd_opts_ui          = $ipa::install::server::server_install_cmd_opts_no_ui_redirect,
-  String   $cmd_opts_zones       = $ipa::install::server::server_install_cmd_opts_zone_overlap,
-  String   $ds_password          = $ipa::ds_password,
-  Boolean           $ignore_group_members = $ipa::ignore_group_members,
-  Boolean           $install_autofs       = $ipa::install_autofs,
-  String   $ipa_domain           = $ipa::domain,
-  String   $ipa_realm            = $ipa::final_realm,
-  String   $ipa_role             = $ipa::ipa_role,
-  String            $ipa_master_fqdn      = $ipa::ipa_master_fqdn,
-  Optional[String]  $override_homedir     = $ipa::override_homedir,
-  String            $sssd_debug_level     = $ipa::sssd_debug_level,
-  Array[String]     $sssd_services        = $ipa::sssd_services,
-) {
+class ipa::install::server::master {
+  $ad_domain            = $ipa::ad_domain
+  $ad_ldap_search_base  = $ipa::ad_ldap_search_base
+  $ad_site              = $ipa::ad_site
+  $admin_pass           = $ipa::admin_password
+  $admin_user           = $ipa::admin_user
+  $automount_location   = $ipa::automount_location
+  $cmd_opts_dns         = $ipa::install::server::server_install_cmd_opts_setup_dns
+  $cmd_opts_dnssec      = $ipa::install::server::server_install_cmd_opts_dnssec_validation
+  $cmd_opts_forwarders  = $ipa::install::server::server_install_cmd_opts_forwarders
+  $cmd_opts_hostname    = $ipa::install::server::server_install_cmd_opts_hostname
+  $cmd_opts_idstart     = $ipa::install::server::server_install_cmd_opts_idstart
+  $cmd_opts_ntp         = $ipa::install::server::server_install_cmd_opts_no_ntp
+  $cmd_opts_ui          = $ipa::install::server::server_install_cmd_opts_no_ui_redirect
+  $cmd_opts_zones       = $ipa::install::server::server_install_cmd_opts_zone_overlap
+  $ds_password          = $ipa::ds_password
+  $ignore_group_members = $ipa::ignore_group_members
+  $install_autofs       = $ipa::install_autofs
+  $ipa_domain           = $ipa::domain
+  $ipa_realm            = $ipa::final_realm
+  $ipa_role             = $ipa::ipa_role
+  $ipa_master_fqdn      = $ipa::ipa_master_fqdn
+  $override_homedir     = $ipa::override_homedir
+  $sssd_debug_level     = $ipa::sssd_debug_level
+  $sssd_services        = $ipa::sssd_services
 
   # Build server-install command
   $server_install_cmd = @("EOC"/)
@@ -50,7 +48,6 @@ class ipa::install::server::master (
   # Set default password policy command
   $config_pw_policy_cmd = 'ipa pwpolicy-mod --maxlife=365'
 
-
   facter::fact { 'ipa_role':
     value => $ipa_role,
   }
@@ -60,9 +57,9 @@ class ipa::install::server::master (
     content => 'Added by IPA Puppet module. Designates primary master. Do not remove.',
   }
 
-  -> exec { "server_install_${$facts['fqdn']}":
+  -> exec { "server_install_${$facts['networking']['fqdn']}":
     command     => $server_install_cmd,
-    environment => [ "IPA_ADMIN_PASS=${admin_pass}", "DS_PASSWORD=${ds_password}" ],
+    environment => ["IPA_ADMIN_PASS=${admin_pass}", "DS_PASSWORD=${ds_password}"],
     path        => ['/bin', '/sbin', '/usr/sbin', '/usr/bin'],
     timeout     => 0,
     unless      => '/usr/sbin/ipactl status >/dev/null 2>&1',
@@ -78,24 +75,26 @@ class ipa::install::server::master (
   # Updated master sssd.conf file after IPA is installed.
   file { '/etc/sssd/sssd.conf':
     ensure  => file,
-    content => epp('ipa/sssd.conf.epp', {
-      ad_domain            => $ad_domain,
-      ad_ldap_search_base  => $ad_ldap_search_base,
-      ad_site              => $ad_site,
-      automount_location   => $automount_location,
-      domain               => $ipa_domain,
-      fqdn                 => $facts['fqdn'],
-      ignore_group_members => $ignore_group_members,
-      install_autofs       => $install_autofs,
-      ipa_master_fqdn      => $ipa_master_fqdn,
-      ipa_role             => $ipa_role,
-      override_homedir     => $override_homedir,
-      sssd_debug_level     => $sssd_debug_level,
-      sssd_services        => $sssd_services,
-    }),
+    content => epp('ipa/sssd.conf.epp',
+      {
+        ad_domain            => $ad_domain,
+        ad_ldap_search_base  => $ad_ldap_search_base,
+        ad_site              => $ad_site,
+        automount_location   => $automount_location,
+        domain               => $ipa_domain,
+        fqdn                 => $facts['networking']['fqdn'],
+        ignore_group_members => $ignore_group_members,
+        install_autofs       => $install_autofs,
+        ipa_master_fqdn      => $ipa_master_fqdn,
+        ipa_role             => $ipa_role,
+        override_homedir     => $override_homedir,
+        sssd_debug_level     => $sssd_debug_level,
+        sssd_services        => $sssd_services,
+      }
+    ),
     mode    => '0600',
-    require => Exec["server_install_${$facts['fqdn']}"],
-    notify  => Ipa::Helpers::Flushcache["server_${$facts['fqdn']}"],
+    require => Exec["server_install_${$facts['networking']['fqdn']}"],
+    notify  => Ipa::Helpers::Flushcache["server_${$facts['networking']['fqdn']}"],
   }
 
   include ipa::install::server::kinit
@@ -113,5 +112,4 @@ class ipa::install::server::master (
     path        => ['/bin', '/usr/bin'],
     refreshonly => true,
   }
-
 }

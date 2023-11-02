@@ -1,12 +1,12 @@
 #
-class ipa::install::server::autofs (
-  String $ad_domain             = $ipa::ad_trust_realm,
-  String $admin_user            = $ipa::admin_user,
-  String $autofs_package        = $ipa::params::autofs_package_name,
-  String $automount_home_dir    = "/home/ipa/${ad_domain}",
-  String $automount_home_share  = undef,
-  String $automount_location    = undef,
-) {
+class ipa::install::server::autofs {
+  $ad_domain             = $ipa::ad_trust_realm
+  $admin_user            = $ipa::admin_user
+  $autofs_package        = $ipa::params::autofs_package_name
+  $automount_home_dir    = "/home/ipa/${ad_domain}"
+  $automount_home_share  = undef
+  $automount_location    = undef
+
   include ipa::install::server::kinit
 
   # automount map home command
@@ -33,23 +33,23 @@ class ipa::install::server::autofs (
   ensure_resource('package', $autofs_package, { 'ensure' => 'present' })
 
   Ipa_kinit[$admin_user]
-  -> exec { "automount_map_home_${$facts['fqdn']}":
+  -> exec { "automount_map_home_${$facts['networking']['fqdn']}":
     command => $map_home_cmd,
     unless  => "ipa automountmap-find ${automount_location} --map auto.home",
     path    => ['/bin', '/usr/bin'],
-    notify  => Ipa::Helpers::Flushcache["server_${$facts['fqdn']}"],
+    notify  => Ipa::Helpers::Flushcache["server_${$facts['networking']['fqdn']}"],
   }
-  ~> exec { "automount_key_home_${$facts['fqdn']}":
+  ~> exec { "automount_key_home_${$facts['networking']['fqdn']}":
     command => $key_home_cmd,
     unless  => "ipa automountkey-find ${automount_location} auto.home --key='*'",
     path    => ['/bin', '/usr/bin'],
-    notify  => Ipa::Helpers::Flushcache["server_${$facts['fqdn']}"],
+    notify  => Ipa::Helpers::Flushcache["server_${$facts['networking']['fqdn']}"],
   }
-  ~> exec { "automount_key_master_${$facts['fqdn']}":
+  ~> exec { "automount_key_master_${$facts['networking']['fqdn']}":
     command     => $key_master_cmd,
     path        => ['/bin', '/usr/bin'],
     refreshonly => true,
-    notify      => Ipa::Helpers::Flushcache["server_${$facts['fqdn']}"],
+    notify      => Ipa::Helpers::Flushcache["server_${$facts['networking']['fqdn']}"],
   }
   ~> exec { 'ipa_config_mod_homedir':
     command     => $config_homedir_cmd,
@@ -71,6 +71,6 @@ class ipa::install::server::autofs (
     path   => '/etc/nsswitch.conf',
     line   => 'automount:  files sss',
     match  => '^automount:.*',
-    notify => Ipa::Helpers::Flushcache["server_${$facts['fqdn']}"],
+    notify => Ipa::Helpers::Flushcache["server_${$facts['networking']['fqdn']}"],
   }
 }

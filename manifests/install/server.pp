@@ -1,30 +1,30 @@
 # IPA server install manifest
-class ipa::install::server (
-  Boolean         $allow_zone_overlap   = $ipa::allow_zone_overlap,
-  Boolean         $config_replica_ca    = $ipa::configure_replica_ca,
-  Boolean         $configure_dns        = $ipa::final_configure_dns_server,
-  Boolean         $configure_ntp        = $ipa::configure_ntp,
-  Array[String]   $dns_forwarders       = $ipa::custom_dns_forwarders,
-  Boolean         $enable_hostname      = $ipa::enable_hostname,
-  Integer         $idstart              = $ipa::idstart,
-  Boolean         $install_kstart       = $ipa::install_kstart,
-  Boolean         $install_ldaputils    = $ipa::server_install_ldaputils,
-  String          $ipa_package_name     = $ipa::params::ipa_server_package_name,
-  String          $ipa_role             = $ipa::ipa_role,
-  String          $ipa_server_name      = $ipa::ipa_server_fqdn,
-  String          $kstart_package_name  = $ipa::params::kstart_package_name,
-  String          $ldap_package_name    = $ipa::params::ldaputils_package_name,
-  Boolean         $make_homedir         = $ipa::mkhomedir,
-  Boolean         $set_no_dnssec        = $ipa::no_dnssec_validation,
-  Boolean         $set_no_ui_redirect   = $ipa::no_ui_redirect,
-) {
+#
+class ipa::install::server {
+  $allow_zone_overlap   = $ipa::allow_zone_overlap
+  $config_replica_ca    = $ipa::configure_replica_ca
+  $configure_dns        = $ipa::final_configure_dns_server
+  $configure_ntp        = $ipa::configure_ntp
+  $dns_forwarders       = $ipa::custom_dns_forwarders
+  $enable_hostname      = $ipa::enable_hostname
+  $idstart              = $ipa::idstart
+  $install_kstart       = $ipa::install_kstart
+  $install_ldaputils    = $ipa::server_install_ldaputils
+  $ipa_package_name     = $ipa::params::ipa_server_package_name
+  $ipa_role             = $ipa::ipa_role
+  $ipa_server_name      = $ipa::ipa_server_fqdn
+  $kstart_package_name  = $ipa::params::kstart_package_name
+  $ldap_package_name    = $ipa::params::ldaputils_package_name
+  $make_homedir         = $ipa::mkhomedir
+  $set_no_dnssec        = $ipa::no_dnssec_validation
+  $set_no_ui_redirect   = $ipa::no_ui_redirect
 
-  package{ $ipa_package_name:
+  package { $ipa_package_name:
     ensure => present,
   }
 
   if $install_kstart {
-    package{ $kstart_package_name:
+    package { $kstart_package_name:
       ensure => present,
     }
   }
@@ -147,5 +147,4 @@ class ipa::install::server (
       logoutput => 'on_failure',
     }
   }
-
 }

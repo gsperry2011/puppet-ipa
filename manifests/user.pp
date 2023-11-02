@@ -46,6 +46,8 @@
 #
 # @param [String] api_password
 #   Password for FreeIPA API access.
+# @param mail
+# @param ldap_attributes
 #
 # @example Basic usage
 #   ipa::user { 'testuser':
@@ -70,20 +72,20 @@
 #     initial_password => 'abc123',
 #   }
 define ipa::user (
-  String $initial_password,
-  String $ensure                      = 'present',
-  String $first_name                  = $name,
-  String $last_name                   = $name,
-  Optional[String] $mail              = undef,
-  Optional[Hash] $ldap_attributes     = undef,
-  Boolean $manage_home_dir            = true,
-  String $home_dir_base               = '',
-  String $home_dir_mode               = '0700',
-  Boolean $manage_etc_skel            = true,
-  Boolean $manage_dot_ssh             = true,
-  Optional[Array[String]] $sshpubkeys = undef,
-  String $api_username                = $ipa::admin_user,
-  String $api_password                = $ipa::admin_password,
+  String                   $initial_password,
+  String                   $ensure             = 'present',
+  String                   $first_name         = $name,
+  String                   $last_name          = $name,
+  Optional[String]         $mail               = undef,
+  Optional[Hash]           $ldap_attributes    = undef,
+  Boolean                  $manage_home_dir    = true,
+  Optional[String]         $home_dir_base      = undef,
+  String                   $home_dir_mode      = '0700',
+  Boolean                  $manage_etc_skel    = true,
+  Boolean                  $manage_dot_ssh     = true,
+  Optional[Array[String]]  $sshpubkeys         = undef,
+  String                   $api_username       = $ipa::admin_user,
+  String                   $api_password       = $ipa::admin_password,
 ) {
   ipa_user { $name:
     ensure           => $ensure,

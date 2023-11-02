@@ -1,17 +1,17 @@
 <%-|
-  String $domain,
-  String $fqdn,
-  String $ipa_role,
-  String $sssd_debug_level,
-  Boolean $ignore_group_members,
-  Boolean $install_autofs,
-  Array[String] $sssd_services,
-  String $automount_location = '',
-  String $ipa_master_fqdn = '',
-  String $ad_domain = '',
-  String $ad_site = '',
-  String $ad_ldap_search_base = '',
-  Optional[String] $override_homedir = undef,
+  $domain,
+  $fqdn,
+  $ipa_role,
+  $sssd_debug_level,
+  $ignore_group_members,
+  $install_autofs,
+  $sssd_services,
+  $automount_location,
+  $ipa_master_fqdn,
+  $ad_domain,
+  $ad_site,
+  $ad_ldap_search_base,
+  $override_homedir,
 |-%>
 [domain/<%= $domain %>]
 debug_level = <%= $sssd_debug_level %>
@@ -43,12 +43,12 @@ subdomain_inherit = ldap_user_principal
 <% } -%>
 ldap_user_principal = nosuchattr
 
-<% if $ad_domain != '' { -%>
+<% if ! empty($ad_domain) { -%>
 [domain/<%= $domain -%>/<%= $ad_domain %>]
-  <%- if $ad_site != '' { -%>
+  <%- if ! empty($ad_site) { -%>
 ad_site = <%= $ad_site %>
   <%- } -%>
-  <%- if $ad_ldap_search_base != '' { -%>
+  <%- if ! empty($ad_ldap_search_base) { -%>
 ldap_search_base = <%= $ad_ldap_search_base %>
   <%- } -%>
 

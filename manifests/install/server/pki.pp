@@ -1,7 +1,10 @@
 # Private class to manage IPA PKI certificate server (Dogtag)
+#
+# @api private
+#
 class ipa::install::server::pki (
-  Optional[String] $ssl_protocol_range = $ipa::params::pki_ssl_protocol_range,
-  Optional[Array[String]] $ssl_ciphers = $ipa::params::pki_ssl_ciphers,
+  Optional[String]         $ssl_protocol_range  = $ipa::params::pki_ssl_protocol_range,
+  Optional[Array[String]]  $ssl_ciphers         = $ipa::params::pki_ssl_ciphers,
 ) inherits ipa {
   $config_file = '/etc/pki/pki-tomcat/server.xml'
 
