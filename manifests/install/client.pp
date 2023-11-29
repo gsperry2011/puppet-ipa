@@ -125,7 +125,7 @@ class ipa::install::client (
   # Update nsswitch with sudoers config
   file_line { '/etc/nsswitch.conf_sudoers':
     path   => '/etc/nsswitch.conf',
-    line   => 'sudoers:  files sss',
+    line   => 'sudoers:  sss files',
     match  => '^sudoers:.*',
     notify => Ipa::Helpers::Flushcache["server_${$facts['networking']['fqdn']}"],
   }
