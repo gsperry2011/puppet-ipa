@@ -120,7 +120,7 @@ class ipa::params {
           $pki_ssl_ciphers        = undef
           $pki_ssl_protocol_range = undef
         }
-        /(20.04)/: {
+        /(20.04)/,/(22.04)/: {
           $service_stop_epp    = 'systemctl stop <%= $service %>'
           $service_restart_epp = 'systemctl restart <%= $service %>'
 
