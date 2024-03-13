@@ -11,6 +11,10 @@
 * Added ability to specify `mail` and any additional `ldap_attributes` for IPA users.
   Contributed by Nick Maludy (@nmaludy)
 
+## v0.2.2 (2024-03-13)
+* Added support for Ubuntu 22.04
+  Contributed by Greg Perry (@gsperry2011)
+
 ## v0.2.1 (2021-01-21)
 * Fixed bug with `initial_password` in `ipa_user`.
   Contributed by Nick Maludy (@nmaludy)
